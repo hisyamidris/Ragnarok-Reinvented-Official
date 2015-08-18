@@ -68,12 +68,6 @@ test_spinlock: $(TEST_SPINLOCK_DEPENDS) Makefile
 	@echo "	LD	$@"
 	@$(CC) @LDFLAGS@ -o ../../test_spinlock@EXEEXT@ $(TEST_SPINLOCK_DEPENDS) @LIBS@ @MYSQL_LIBS@
 
-# object files
-
-obj/%.o: %.c $(TEST_SPINLOCK_H) $(COMMON_H) $(CONFIG_H) $(MT19937AR_H) $(LIBCONFIG_H) | obj
-	@echo "	CC	$<"
-	@$(CC) @CFLAGS@ @DEFS@ $(COMMON_INCLUDE) $(THIRDPARTY_INCLUDE) -DWITH_SQL @MYSQL_CFLAGS@ @CPPFLAGS@ -c $(OUTPUT_OPTION) $<
-
 # missing object files
 $(COMMON_D)/obj_all/common.a:
 	@echo "	MAKE	$@"
@@ -90,3 +84,10 @@ $(MT19937AR_OBJ):
 $(LIBCONFIG_OBJ):
 	@echo "	MAKE	$@"
 	@$(MAKE) -C $(LIBCONFIG_D)
+
+.SECONDEXPANSION:
+
+# object files
+obj/%.o: %.c $(TEST_SPINLOCK_H) $(COMMON_H) $(CONFIG_H) $(MT19937AR_H) $(LIBCONFIG_H) $$(wildcard %.p.h) | obj
+	@echo "	CC	$<"
+	@$(CC) @CFLAGS@ @DEFS@ $(COMMON_INCLUDE) $(THIRDPARTY_INCLUDE) -DWITH_SQL @MYSQL_CFLAGS@ @CPPFLAGS@ -c $(OUTPUT_OPTION) $<

@@ -109,12 +109,6 @@ map-server: ../../map-server@EXEEXT@
 	@$(CC) @STATIC@ @LDFLAGS@ -o ../../map-server@EXEEXT@ $(MAP_OBJ) $(COMMON_D)/obj_sql/common_sql.a \
 		$(COMMON_D)/obj_all/common.a $(MT19937AR_OBJ) $(LIBCONFIG_OBJ) @LIBS@ @PCRE_LIBS@ @MYSQL_LIBS@
 
-# map object files
-
-obj_sql/%.o: %.c $(MAP_H) $(COMMON_H) $(CONFIG_H) $(MT19937AR_H) $(LIBCONFIG_H) | obj_sql
-	@echo "	CC	$<"
-	@$(CC) @CFLAGS@ @DEFS@ $(COMMON_INCLUDE) $(THIRDPARTY_INCLUDE) $(PCRE_CFLAGS) @MYSQL_CFLAGS@ @CPPFLAGS@ -c $(OUTPUT_OPTION) $<
-
 # missing object files
 $(COMMON_D)/obj_all/common.a:
 	@echo "	MAKE	$@"
@@ -131,3 +125,10 @@ $(MT19937AR_OBJ):
 $(LIBCONFIG_OBJ):
 	@echo "	MAKE	$@"
 	@$(MAKE) -C $(LIBCONFIG_D)
+
+.SECONDEXPANSION:
+
+# map object files
+obj_sql/%.o: %.c $(MAP_H) $(COMMON_H) $(CONFIG_H) $(MT19937AR_H) $(LIBCONFIG_H) $$(wildcard %.p.h) | obj_sql
+	@echo "	CC	$<"
+	@$(CC) @CFLAGS@ @DEFS@ $(COMMON_INCLUDE) $(THIRDPARTY_INCLUDE) $(PCRE_CFLAGS) @MYSQL_CFLAGS@ @CPPFLAGS@ -c $(OUTPUT_OPTION) $<
