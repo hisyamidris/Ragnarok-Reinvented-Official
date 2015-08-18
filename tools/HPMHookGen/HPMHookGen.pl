@@ -25,7 +25,7 @@ sub parse($$) {
 	$p =~ s/^.*?\)\((.*)\).*$/$1/; # Clean up extra parentheses )(around the arglist)
 
 	# Retrieve return type
-	unless ($d =~ /^(.+)\(\*\s*[a-zA-Z0-9_]+_interface::([^\)]+)\s*\)\s*\(.*\)$/) {
+	unless ($d =~ /^(.+)\(\*\s*[a-zA-Z0-9_]+_interface(?:_p)?::([^\)]+)\s*\)\s*\(.*\)$/) {
 		print "Error: unable to parse '$d'\n";
 		return {};
 	}
@@ -258,6 +258,7 @@ sub parse($$) {
 }
 
 my %key2original;
+my %key2pointer;
 my @files = grep { -f } glob 'doxyoutput/xml/*interface*.xml';
 my %ifs;
 my %keys = (
@@ -293,8 +294,9 @@ foreach my $file (@files) { # Loop through the xml files
 	}
 	my @filepath = split(/[\/\\]/, $loc->{file});
 	my $foldername = uc($filepath[-2]);
-	my $filename = uc($filepath[-1]); $filename =~ s/-/_/g; $filename =~ s/\.[^.]*$//;
-	my $guardname = "${foldername}_${filename}_H";
+	my $filename = uc($filepath[-1]); $filename =~ s/[.-]/_/g;
+	my $guardname = "${foldername}_${filename}";
+	my $private = $key =~ /_interface_p$/ ? 1 : 0;
 
 	# Some known interfaces with different names
 	if ($key =~ /battleground/) {
@@ -329,6 +331,9 @@ foreach my $file (@files) { # Loop through the xml files
 	} else {
 		$key =~ s/_interface//;
 	}
+	$key =~ s/^(.*)_p$/PRIV__$1/ if $private;
+	my $pointername = $key;
+	$pointername =~ s/^PRIV__(.*)$/$1\->p/ if $private;
 
 	my $sectiondef = $data->{compounddef}->{$filekey}->{sectiondef};
 	foreach my $v (@$sectiondef) { # Loop through the sections
@@ -416,6 +421,7 @@ foreach my $file (@files) { # Loop through the xml files
 			$if->{origcall} .= ");";
 
 			$key2original{$key} = $original;
+			$key2pointer{$key} = $pointername;
 			$ifs{$key} = [] unless $ifs{$key};
 			push(@{ $ifs{$key} }, $if);
 		}
@@ -427,6 +433,7 @@ foreach my $file (@files) { # Loop through the xml files
 	$fileguards{$key} = {
 		guard => $guardname,
 		type => $servermask,
+		private => $private,
 	};
 }
 
@@ -460,6 +467,7 @@ foreach my $servertype (keys %keys) {
 EOF
 
 		foreach my $key (@$keysref) {
+			next if $fileguards{$key}->{private};
 			print FH <<"EOF";
 #ifdef $fileguards{$key}->{guard} /* $key */
 struct $key2original{$key} *$key;
@@ -475,6 +483,7 @@ HPExport const char *HPM_shared_symbols(int server_type)
 EOF
 
 		foreach my $key (@$keysref) {
+			next if $fileguards{$key}->{private};
 			print FH <<"EOF";
 #ifdef $fileguards{$key}->{guard} /* $key */
 if ((server_type&($fileguards{$key}->{type})) && !HPM_SYMBOL("$exportsymbols{$key}", $key)) return "$exportsymbols{$key}";
@@ -505,11 +514,11 @@ struct HookingPointData HookingPoints[] = {
 EOF
 
 	foreach my $key (@$keysref) {
-		print FH "/* ".$key." */\n";
+		print FH "/* $key2pointer{$key} */\n";
 		foreach my $if (@{ $ifs{$key} }) {
 
 			print FH <<"EOF";
-	{ HP_POP($key\->$if->{name}, $if->{hname}) },
+	{ HP_POP($key2pointer{$key}\->$if->{name}, $if->{hname}) },
 EOF
 
 			$idx += 2;
@@ -538,7 +547,7 @@ EOF
 	foreach my $key (@$keysref) {
 
 		print FH <<"EOF";
-memcpy(&HPMHooks.source.$key, $key, sizeof(struct $key2original{$key}));
+memcpy(&HPMHooks.source.$key, $key2pointer{$key}, sizeof(struct $key2original{$key}));
 EOF
 	}
 	close FH;
