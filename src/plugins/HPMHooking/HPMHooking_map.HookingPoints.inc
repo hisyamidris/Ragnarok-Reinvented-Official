@@ -2916,6 +2916,9 @@ struct HookingPointData HookingPoints[] = {
 	{ HP_POP(vending->purchase, HP_vending_purchase) },
 	{ HP_POP(vending->search, HP_vending_search) },
 	{ HP_POP(vending->searchall, HP_vending_searchall) },
+	{ HP_POP(vending->iterator, HP_vending_iterator) },
+/* vending->p */
+	{ HP_POP(vending->p->getid, HP_PRIV__vending_getid) },
 };
 
 int HookingPointsLenMax = 49;
