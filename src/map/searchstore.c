@@ -9,6 +9,7 @@
 #include "map/battle.h" // battle_config.*
 #include "map/clif.h" // clif-"open_search_store_info, clif-"search_store_info_*
 #include "map/pc.h" // struct map_session_data
+#include "map/vending.h"
 #include "common/cbasetypes.h"
 #include "common/malloc.h" // aMalloc, aRealloc, aFree
 #include "common/showmsg.h" // ShowError, ShowWarning
@@ -148,7 +149,7 @@ void searchstore_query(struct map_session_data* sd, unsigned char type, unsigned
 	s.card_count = card_count;
 	s.min_price  = min_price;
 	s.max_price  = max_price;
-	iter         = db_iterator(vending->db);
+	iter         = vending->iterator();
 
 	for( pl_sd = dbi_first(iter); dbi_exists(iter);  pl_sd = dbi_next(iter) ) {
 		if( sd == pl_sd ) {// skip own shop, if any

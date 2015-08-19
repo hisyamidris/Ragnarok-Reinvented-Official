@@ -77,6 +77,8 @@
 #include "map/storage.h"
 #include "map/trade.h"
 #include "map/unit.h"
+#include "map/vending.h"
+#include "map/vending.p.h"
 #include "common/mapindex.h"
 #else
 #define HPM_SERVER_TYPE SERVER_TYPE_UNKNOWN

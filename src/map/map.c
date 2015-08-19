@@ -41,6 +41,7 @@
 #include "map/storage.h"
 #include "map/trade.h"
 #include "map/unit.h"
+#include "map/vending.h"
 #include "common/HPM.h"
 #include "common/cbasetypes.h"
 #include "common/conf.h"
@@ -1879,9 +1880,8 @@ int map_quit(struct map_session_data *sd) {
 		}
 	}
 
-	if( sd->state.vending ) {
-		idb_remove(vending->db, sd->status.char_id);
-	}
+	if (sd->state.vending)
+		vending->close(sd, true);
 	
 	party->booking_delete(sd); // Party Booking [Spiria]
 	pc->makesavestatus(sd);
