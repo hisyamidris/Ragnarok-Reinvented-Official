@@ -469,7 +469,7 @@ struct bg_arena *bg_name2arena (char *name) {
 	return NULL;
 }
 int bg_id2pos ( int queue_id, int account_id ) {
-	struct hQueue *queue = script->queue(queue_id);
+	struct script_queue *queue = script->queue(queue_id);
 	if( queue ) {
 		int i, pos = 1;
 		for(i = 0; i < queue->size; i++ ) {
@@ -491,7 +491,7 @@ void bg_queue_ready_ack (struct bg_arena *arena, struct map_session_data *sd, bo
 	if( !response )
 		bg->queue_pc_cleanup(sd);
 	else {
-		struct hQueue *queue = script->queue(arena->queue_id);
+		struct script_queue *queue = script->queue(arena->queue_id);
 		int i, count = 0;
 		sd->bg_queue.ready = 1;
 
@@ -525,7 +525,7 @@ void bg_queue_player_cleanup(struct map_session_data *sd) {
 	sd->bg_queue.type = 0;
 }
 void bg_match_over(struct bg_arena *arena, bool canceled) {
-	struct hQueue *queue = script->queue(arena->queue_id);
+	struct script_queue *queue = script->queue(arena->queue_id);
 	int i;
 
 	if( !arena->ongoing )
@@ -553,7 +553,7 @@ void bg_match_over(struct bg_arena *arena, bool canceled) {
 	script->queue_clear(arena->queue_id);
 }
 void bg_begin(struct bg_arena *arena) {
-	struct hQueue *queue = script->queue(arena->queue_id);
+	struct script_queue *queue = script->queue(arena->queue_id);
 	int i, count = 0;
 
 	for( i = 0; i < queue->size; i++ ) {
@@ -637,7 +637,7 @@ int bg_afk_timer(int tid, int64 tick, int id, intptr_t data) {
 }
 
 void bg_queue_pregame(struct bg_arena *arena) {
-	struct hQueue *queue = script->queue(arena->queue_id);
+	struct script_queue *queue = script->queue(arena->queue_id);
 	int i;
 
 	for( i = 0; i < queue->size; i++ ) {
@@ -656,7 +656,7 @@ int bg_fillup_timer(int tid, int64 tick, int id, intptr_t data) {
 }
 
 void bg_queue_check(struct bg_arena *arena) {
-	struct hQueue *queue = script->queue(arena->queue_id);
+	struct script_queue *queue = script->queue(arena->queue_id);
 	int count = queue->items;
 	if( count == arena->max_players ) {
 		if( arena->fillup_timer != INVALID_TIMER ) {
@@ -670,7 +670,7 @@ void bg_queue_check(struct bg_arena *arena) {
 }
 void bg_queue_add(struct map_session_data *sd, struct bg_arena *arena, enum bg_queue_types type) {
 	enum BATTLEGROUNDS_QUEUE_ACK result = bg->can_queue(sd,arena,type);
-	struct hQueue *queue;
+	struct script_queue *queue = NULL;
 	int i, count = 0;
 
 	if( arena->begin_timer != INVALID_TIMER || arena->ongoing ) {

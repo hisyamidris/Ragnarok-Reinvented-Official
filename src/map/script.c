@@ -18811,7 +18811,8 @@ BUILDIN(montransform) {
 	return true;
 }
 
-struct hQueue *script_hqueue_get(int idx) {
+struct script_queue *script_hqueue_get(int idx)
+{
 	if (idx < 0 || idx >= VECTOR_LENGTH(script->hq) || VECTOR_INDEX(script->hq, idx).size == -1)
 		return NULL;
 	return &VECTOR_INDEX(script->hq, idx);
@@ -18966,24 +18967,24 @@ BUILDIN(queueopt) {
 	if (idx < 0 || idx >= VECTOR_LENGTH(script->hq) || VECTOR_INDEX(script->hq, idx).size == -1) {
 		ShowWarning("buildin_queueopt: unknown queue id %d\n",idx);
 		script_pushint(st, 1);
-	} else if( var <= HQO_NONE || var >= HQO_MAX ) {
+	} else if( var <= SQO_NONE || var >= SQO_MAX ) {
 		ShowWarning("buildin_queueopt: unknown optionType %d\n",var);
 		script_pushint(st, 1);
 	} else {
-		switch( (enum hQueueOpt)var ) {
-			case HQO_OnDeath:
+		switch ((enum ScriptQueueOptions)var) {
+			case SQO_ONDEATH:
 				if( script_hasdata(st, 4) )
 					safestrncpy(VECTOR_INDEX(script->hq, idx).onDeath, script_getstr(st, 4), EVENT_NAME_LENGTH);
 				else
 					VECTOR_INDEX(script->hq, idx).onDeath[0] = '\0';
 				break;
-			case HQO_onLogOut:
+			case SQO_ONLOGOUT:
 				if( script_hasdata(st, 4) )
 					safestrncpy(VECTOR_INDEX(script->hq, idx).onLogOut, script_getstr(st, 4), EVENT_NAME_LENGTH);
 				else
 					VECTOR_INDEX(script->hq, idx).onLogOut[0] = '\0';
 				break;
-			case HQO_OnMapChange:
+			case SQO_ONMAPCHANGE:
 				if( script_hasdata(st, 4) )
 					safestrncpy(VECTOR_INDEX(script->hq, idx).onMapChange, script_getstr(st, 4), EVENT_NAME_LENGTH);
 				else
@@ -19066,7 +19067,7 @@ void script_hqueue_clear(int idx) {
 /* creates a new queue iterator, returns its id */
 BUILDIN(queueiterator) {
 	int qid = script_getnum(st, 2);
-	struct hQueue *queue = NULL;
+	struct script_queue *queue = NULL;
 	int idx = (int)VECTOR_LENGTH(script->hqi);
 	int i;
 
@@ -19107,7 +19108,7 @@ BUILDIN(queueiterator) {
 /* returns next/first member in the iterator, 0 if none */
 BUILDIN(qiget) {
 	int idx = script_getnum(st, 2);
-	struct hQueueIterator *it = NULL;
+	struct script_queue_iterator *it = NULL;
 
 	if (idx < 0 || idx >= VECTOR_LENGTH(script->hqi)) {
 		ShowWarning("buildin_qiget: unknown queue iterator id %d\n",idx);
@@ -19130,7 +19131,7 @@ BUILDIN(qiget) {
 /* returns 1:0 if there is the current member in the iterator exists */
 BUILDIN(qicheck) {
 	int idx = script_getnum(st, 2);
-	struct hQueueIterator *it = NULL;
+	struct script_queue_iterator *it = NULL;
 
 	if (idx < 0 || idx >= VECTOR_LENGTH(script->hqi)) {
 		ShowWarning("buildin_qicheck: unknown queue iterator id %d\n",idx);
@@ -20398,7 +20399,7 @@ void script_parse_builtin(void) {
 		BUILDIN_DEF(showevent, "i?"),
 
 		/**
-		 * hQueue [Ind/Hercules]
+		 * script_queue [Ind/Hercules]
 		 **/
 		BUILDIN_DEF(queue,""),
 		BUILDIN_DEF(queuesize,"i"),
