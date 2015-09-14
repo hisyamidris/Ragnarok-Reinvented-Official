@@ -4618,9 +4618,7 @@ void do_final_script(void) {
 	VECTOR_CLEAR(script->hq);
 
 	for (i = 0; i < VECTOR_LENGTH(script->hqi); i++) {
-		if (VECTOR_INDEX(script->hqi, i).item != NULL) {
-			aFree(VECTOR_INDEX(script->hqi, i).item);
-		}
+		VECTOR_CLEAR(VECTOR_INDEX(script->hqi, i).entries);
 	}
 	VECTOR_CLEAR(script->hqi);
 
@@ -19161,7 +19159,7 @@ BUILDIN(queueiterator)
 		return true;
 	}
 
-	ARR_FIND(0, VECTOR_LENGTH(script->hqi), i, VECTOR_INDEX(script->hqi, i).items == -1);
+	ARR_FIND(0, VECTOR_LENGTH(script->hqi), i, !VECTOR_INDEX(script->hqi, i).valid);
 
 	if (i == VECTOR_LENGTH(script->hqi)) {
 		VECTOR_ENSURE(script->hqi, 1, 1);
@@ -19170,11 +19168,11 @@ BUILDIN(queueiterator)
 
 	iter = &VECTOR_INDEX(script->hqi, i);
 
-	RECREATE(iter->item, int, VECTOR_LENGTH(queue->entries));
-	memcpy(iter->item, VECTOR_DATA(queue->entries), sizeof(VECTOR_FIRST(queue->entries))*VECTOR_LENGTH(queue->entries));
+	VECTOR_ENSURE(iter->entries, VECTOR_LENGTH(queue->entries), 1);
+	VECTOR_PUSHARRAY(iter->entries, VECTOR_DATA(queue->entries), VECTOR_LENGTH(queue->entries));
 
-	iter->items = (int)VECTOR_LENGTH(queue->entries);
 	iter->pos = 0;
+	iter->valid = true;
 
 	script_pushint(st, i);
 	return true;
@@ -19196,7 +19194,7 @@ BUILDIN(qiget)
 	int idx = script_getnum(st, 2);
 	struct script_queue_iterator *it = NULL;
 
-	if (idx < 0 || idx >= VECTOR_LENGTH(script->hqi)) {
+	if (idx < 0 || idx >= VECTOR_LENGTH(script->hqi) || !VECTOR_INDEX(script->hqi, idx).valid) {
 		ShowWarning("buildin_qiget: unknown queue iterator id %d\n",idx);
 		script_pushint(st, 0);
 		return true;
@@ -19204,18 +19202,18 @@ BUILDIN(qiget)
 
 	it = &VECTOR_INDEX(script->hqi, idx);
 
-	if (it->pos >= it->items) {
-		if (it->pos == it->items)
+	if (it->pos >= VECTOR_LENGTH(it->entries)) {
+		if (it->pos == VECTOR_LENGTH(it->entries))
 			++it->pos; // Move beyond the last position to invalidate qicheck
 		script_pushint(st, 0);
 		return true;
 	}
-	script_pushint(st, it->item[it->pos++]);
+	script_pushint(st, VECTOR_INDEX(it->entries, it->pos++));
 	return true;
 }
 
 /**
- * Script command qicheck: Checks if the current member in the given iterator exists.
+ * Script command qicheck: Checks if the current member in the given iterator (from the last call to qiget) exists.
  *
  * Returns 1 if it exists, 0 otherwise.
  *
@@ -19230,7 +19228,7 @@ BUILDIN(qicheck)
 	int idx = script_getnum(st, 2);
 	struct script_queue_iterator *it = NULL;
 
-	if (idx < 0 || idx >= VECTOR_LENGTH(script->hqi)) {
+	if (idx < 0 || idx >= VECTOR_LENGTH(script->hqi) || !VECTOR_INDEX(script->hqi, idx).valid) {
 		ShowWarning("buildin_qicheck: unknown queue iterator id %d\n",idx);
 		script_pushint(st, 0);
 		return true;
@@ -19238,7 +19236,7 @@ BUILDIN(qicheck)
 
 	it = &VECTOR_INDEX(script->hqi, idx);
 
-	if (it->pos <= 0 || it->pos > it->items) {
+	if (it->pos <= 0 || it->pos > VECTOR_LENGTH(it->entries)) {
 		script_pushint(st, 0);
 	} else {
 		script_pushint(st, 1);
@@ -19259,14 +19257,20 @@ BUILDIN(qicheck)
 BUILDIN(qiclear)
 {
 	int idx = script_getnum(st, 2);
+	struct script_queue_iterator *it = NULL;
 
-	if (idx < 0 || idx >= VECTOR_LENGTH(script->hqi)) {
+	if (idx < 0 || idx >= VECTOR_LENGTH(script->hqi) || !VECTOR_INDEX(script->hqi, idx).valid) {
 		ShowWarning("buildin_qiclear: unknown queue iterator id %d\n",idx);
 		script_pushint(st, 1);
 		return true;
 	}
 
-	VECTOR_INDEX(script->hqi, idx).items = -1;
+	it = &VECTOR_INDEX(script->hqi, idx);
+
+	VECTOR_CLEAR(it->entries);
+	it->pos = 0;
+	it->valid = false;
+
 	script_pushint(st, 0);
 	return true;
 }
