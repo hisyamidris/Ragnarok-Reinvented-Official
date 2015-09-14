@@ -491,7 +491,7 @@ void bg_queue_ready_ack (struct bg_arena *arena, struct map_session_data *sd, bo
 	if( !response )
 		bg->queue_pc_cleanup(sd);
 	else {
-		struct hQueue *queue = &script->hq[arena->queue_id];
+		struct hQueue *queue = script->queue(arena->queue_id);
 		int i, count = 0;
 		sd->bg_queue.ready = 1;
 
@@ -525,7 +525,7 @@ void bg_queue_player_cleanup(struct map_session_data *sd) {
 	sd->bg_queue.type = 0;
 }
 void bg_match_over(struct bg_arena *arena, bool canceled) {
-	struct hQueue *queue = &script->hq[arena->queue_id];
+	struct hQueue *queue = script->queue(arena->queue_id);
 	int i;
 
 	if( !arena->ongoing )
@@ -553,7 +553,7 @@ void bg_match_over(struct bg_arena *arena, bool canceled) {
 	script->queue_clear(arena->queue_id);
 }
 void bg_begin(struct bg_arena *arena) {
-	struct hQueue *queue = &script->hq[arena->queue_id];
+	struct hQueue *queue = script->queue(arena->queue_id);
 	int i, count = 0;
 
 	for( i = 0; i < queue->size; i++ ) {
@@ -637,7 +637,7 @@ int bg_afk_timer(int tid, int64 tick, int id, intptr_t data) {
 }
 
 void bg_queue_pregame(struct bg_arena *arena) {
-	struct hQueue *queue = &script->hq[arena->queue_id];
+	struct hQueue *queue = script->queue(arena->queue_id);
 	int i;
 
 	for( i = 0; i < queue->size; i++ ) {
@@ -656,7 +656,8 @@ int bg_fillup_timer(int tid, int64 tick, int id, intptr_t data) {
 }
 
 void bg_queue_check(struct bg_arena *arena) {
-	int count = script->hq[arena->queue_id].items;
+	struct hQueue *queue = script->queue(arena->queue_id);
+	int count = queue->items;
 	if( count == arena->max_players ) {
 		if( arena->fillup_timer != INVALID_TIMER ) {
 			timer->delete(arena->fillup_timer,bg->fillup_timer);
@@ -714,8 +715,8 @@ void bg_queue_add(struct map_session_data *sd, struct bg_arena *arena, enum bg_q
 			sd->bg_queue.arena = arena;
 			sd->bg_queue.ready = 0;
 			script->queue_add(arena->queue_id,sd->status.account_id);
-			clif->bgqueue_joined(sd,script->hq[arena->queue_id].items);
-			clif->bgqueue_update_info(sd,arena->id,script->hq[arena->queue_id].items);
+			clif->bgqueue_joined(sd, queue->items);
+			clif->bgqueue_update_info(sd,arena->id, queue->items);
 			break;
 		case BGQT_PARTY: {
 			struct party_data *p = party->search(sd->status.party_id);
@@ -725,8 +726,8 @@ void bg_queue_add(struct map_session_data *sd, struct bg_arena *arena, enum bg_q
 				p->data[i].sd->bg_queue.arena = arena;
 				p->data[i].sd->bg_queue.ready = 0;
 				script->queue_add(arena->queue_id,p->data[i].sd->status.account_id);
-				clif->bgqueue_joined(p->data[i].sd,script->hq[arena->queue_id].items);
-				clif->bgqueue_update_info(p->data[i].sd,arena->id,script->hq[arena->queue_id].items);
+				clif->bgqueue_joined(p->data[i].sd, queue->items);
+				clif->bgqueue_update_info(p->data[i].sd,arena->id, queue->items);
 			}
 		}
 			break;
@@ -738,8 +739,8 @@ void bg_queue_add(struct map_session_data *sd, struct bg_arena *arena, enum bg_q
 				sd->guild->member[i].sd->bg_queue.arena = arena;
 				sd->guild->member[i].sd->bg_queue.ready = 0;
 				script->queue_add(arena->queue_id,sd->guild->member[i].sd->status.account_id);
-				clif->bgqueue_joined(sd->guild->member[i].sd,script->hq[arena->queue_id].items);
-				clif->bgqueue_update_info(sd->guild->member[i].sd,arena->id,script->hq[arena->queue_id].items);
+				clif->bgqueue_joined(sd->guild->member[i].sd, queue->items);
+				clif->bgqueue_update_info(sd->guild->member[i].sd,arena->id, queue->items);
 			}
 			break;
 	}
