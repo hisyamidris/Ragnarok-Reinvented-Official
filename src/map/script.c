@@ -18834,7 +18834,7 @@ int script_hqueue_create(void)
 
 	if (i == VECTOR_LENGTH(script->hq)) {
 		VECTOR_ENSURE(script->hq, 1, 1);
-		//VECTOR_PUSHZEROED(script->hq);
+		VECTOR_PUSHZEROED(script->hq);
 	}
 	queue = &VECTOR_INDEX(script->hq, i);
 
