@@ -36,4 +36,13 @@
  * No settings past this point
  **/
 
+/**
+ * CUSTOM SETTINGS
+ **/
+
+/**
+ * When enabled, Clown pang voice skill can be cast on friend
+ **/
+#define CUSTOM_BA_PANGVOICE_FRIEND
+
 #endif // CONFIG_GENERAL_H

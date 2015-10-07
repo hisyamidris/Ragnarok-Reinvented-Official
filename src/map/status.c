@@ -755,6 +755,9 @@ void initChangeTables(void) {
 	add_sc( NPC_WIDESIREN        , SC_SIREN          );
 
 	set_sc_with_vfx( GN_ILLUSIONDOPING   , SC_ILLUSIONDOPING    , SI_ILLUSIONDOPING     , SCB_HIT );
+	
+	// CUSTOM
+	set_sc( BA_PANGVOICE , SC_BA_PANGVOICE, SI_BA_PANGVOICE, SCB_REGEN );
 
 	// Storing the target job rather than simply SC_SOULLINK simplifies code later on.
 	status->dbs->Skill2SCTable[SL_ALCHEMIST]   = (sc_type)MAPID_ALCHEMIST,
@@ -9059,6 +9062,20 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 				 **/
 				val2 = 20+(20*val1);
 				break;
+			// CUSTOM
+			case SC_BA_PANGVOICE: {
+				// val1: heal interval
+				// val2: heal modifier
+				tick_time = val1;
+				// heal amount formula: [{10 × [(Base_Lv + INT) ÷ 5] × 3} × (1 + (Skill_Mod ÷ 100)) + MATK]/4
+				int f_lv		= status->get_lv(src);
+				int f_matk		= status->get_matk(src, 2);
+				int f_int		= status->get_status_data(src)->int_;
+				int f_skill_mod = val2;
+				val3 = ((10 * ((f_lv + f_int) / 5) * 3) * (1 + (f_skill_mod / 100)) + f_matk) / 4; // heal amount
+				val4 = tick / tick_time; // heal count
+				break;
+			}
 			default:
 				if (calc_flag == SCB_NONE && status->dbs->SkillChangeTable[type] == 0 && status->dbs->IconChangeTable[type] == 0) {
 					//Status change with no calc, no icon, and no skill associated...?
@@ -11320,6 +11337,17 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data) {
 			if( --(sce->val4) > 0 ) {
 				status->heal(bl, sce->val3, 0, 0);
 				sc_timer_next(1000 + tick, status->change_timer, bl->id, data);
+				return 0;
+			}
+			break;
+		case SC_BA_PANGVOICE:
+			if( --(sce->val4) >= 0) {
+				map->freeblock_lock();
+				status->heal(bl, sce->val3, 0, 2);
+				if( sc->data[type] ) {
+					sc_timer_next(sce->val1+tick, status->change_timer, bl->id, data);
+				}
+				map->freeblock_unlock();
 				return 0;
 			}
 			break;

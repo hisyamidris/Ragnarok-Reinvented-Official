@@ -742,6 +742,9 @@ typedef enum sc_type {
 	SC_MTF_MSP,
 	SC_MTF_PUMPKIN,
 	SC_MTF_HITFLEE,
+	
+	// CUSTOM
+	SC_BA_PANGVOICE,
 
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 } sc_type;
@@ -1566,6 +1569,9 @@ enum si_type {
 	//SI_MTF_ASPD2                             = 819,
 	//SI_MTF_MATK2                             = 820,
 
+	// CUSTOM
+	SI_BA_PANGVOICE = 821,
+	
 	SI_MAX,
 };
 // JOINTBEAT stackable ailments

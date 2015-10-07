@@ -6465,11 +6465,24 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 				clif->disp_overhead(&md->bl,temp);
 			}
 			break;
-
+		
 		case BA_PANGVOICE:
-			clif->skill_nodamage(src,bl,skill_id,skill_lv, sc_start(src,bl,SC_CONFUSION,50,7,skill->get_time(skill_id,skill_lv)));
+			// CUSTOM: Check if target is a friend or enemy
+			if (battle->check_target(src, bl, BCT_ENEMY) <= 0) {
+				// CUSTOM: Friend
+				// params src, bl, type, rate, interval, modifier, duration
+#ifdef CUSTOM_BA_PANGVOICE_FRIEND
+				clif->skill_nodamage(src,bl,skill_id,skill_lv, sc_start2(src,bl,SC_BA_PANGVOICE,100,1000,100,skill->get_time2(skill_id,skill_lv)));
+#else
+				if(sd) {
+					clif->skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0)
+				};
+#endif
+			} else {
+				// CUSTOM: Enemy
+				clif->skill_nodamage(src,bl,skill_id,skill_lv, sc_start(src,bl,SC_CONFUSION,50,7,skill->get_time(skill_id,skill_lv)));
+			}
 			break;
-
 		case DC_WINKCHARM:
 			if( dstsd )
 				clif->skill_nodamage(src,bl,skill_id,skill_lv, sc_start(src,bl,SC_CONFUSION,30,7,skill->get_time2(skill_id,skill_lv)));
