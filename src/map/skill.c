@@ -3557,6 +3557,19 @@ int skill_castend_damage_id(struct block_list* src, struct block_list *bl, uint1
 	tstatus = status->get_status_data(bl);
 
 	map->freeblock_lock();
+	
+	
+#ifdef CUSTOM_MO_COMBO_SPIRIT
+	switch (skill_id) {
+		case MO_TRIPLEATTACK:
+		case MO_CHAINCOMBO:
+		case MO_COMBOFINISH:
+		case CH_TIGERFIST:
+		case CH_CHAINCRUSH:
+			pc->addspiritball(sd, skill->get_time(MO_CALLSPIRITS, 1), pc->getmaxspiritball(sd, 0));
+			break;
+	}
+#endif
 
 	switch(skill_id) {
 		case MER_CRASH:
@@ -13253,17 +13266,23 @@ int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id
 				sd->spiritball_old = require.spiritball;
 			break;
 		case MO_CHAINCOMBO:
+#ifdef CUSTOM_MO_COMBO_BYPASS
+			break;
+#endif
 			if(!sc)
 				return 0;
 			if(sc->data[SC_BLADESTOP])
 				break;
-			if (sc->data[SC_COMBOATTACK]) {
+			if(sc->data[SC_COMBOATTACK]) {
 				if( sc->data[SC_COMBOATTACK]->val1 == MO_TRIPLEATTACK )
 					break;
 				clif->skill_fail(sd, skill_id, USESKILL_FAIL_COMBOSKILL, MO_TRIPLEATTACK);
 			}
 			return 0;
 		case MO_COMBOFINISH:
+#ifdef CUSTOM_MO_COMBO_BYPASS
+			break;
+#endif
 			if(!sc)
 				return 0;
 			if( sc && sc->data[SC_COMBOATTACK] ) {
@@ -13273,6 +13292,9 @@ int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id
 			}
 			return 0;
 		case CH_TIGERFIST:
+#ifdef CUSTOM_MO_COMBO_BYPASS
+			break;
+#endif
 			if(!sc)
 				return 0;
 			if( sc && sc->data[SC_COMBOATTACK] ) {
@@ -13282,6 +13304,9 @@ int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id
 			}
 			return 0;
 		case CH_CHAINCRUSH:
+#ifdef CUSTOM_MO_COMBO_BYPASS
+			break;
+#endif
 			if(!sc)
 				return 0;
 			if( sc && sc->data[SC_COMBOATTACK] ) {

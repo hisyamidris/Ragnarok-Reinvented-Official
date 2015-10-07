@@ -46,6 +46,16 @@
 #define CUSTOM_BA_PANGVOICE_FRIEND
 
 /**
+ * When enabled, bypass monk/champion combo requirements
+ **/
+#define CUSTOM_MO_COMBO_BYPASS
+
+/**
+ * When enabled, monk/champion combo skills adds 1 sphere
+ **/
+#define CUSTOM_MO_COMBO_SPIRIT
+
+/**
  * When enabled, use custom monk/champion asura strike
  * Asura strike can be used at any time. 
  * After using Asura Strike SP will not regenerate normally or by items for 3 minutes. 
