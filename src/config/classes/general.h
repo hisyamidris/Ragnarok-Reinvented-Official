@@ -45,4 +45,12 @@
  **/
 #define CUSTOM_BA_PANGVOICE_FRIEND
 
+/**
+ * When enabled, use custom monk/champion asura strike
+ * Asura strike can be used at any time. 
+ * After using Asura Strike SP will not regenerate normally or by items for 3 minutes. 
+ * If Asura Strike is used with Explosion Spirits buff and 5 spirit spheres, it will not consume any SP nor will it restrict SP regeneration.
+ **/
+#define CUSTOM_MO_ASURA
+
 #endif // CONFIG_GENERAL_H

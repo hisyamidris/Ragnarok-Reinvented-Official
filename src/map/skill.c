@@ -3812,14 +3812,32 @@ int skill_castend_damage_id(struct block_list* src, struct block_list *bl, uint1
 				skill->attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,flag);
 
 				if( skill_id == MO_EXTREMITYFIST ) {
-					mbl = src;
-					i = 3; // for Asura(from caster)
+#ifdef CUSTOM_MO_ASURA
+					int req_spiritball = 5;
+					
+					if (sc && sc->data[SC_BLADESTOP]) {
+						req_spiritball -= 1;
+					}
+					
+					if (!sc || !sc->data[SC_EXPLOSIONSPIRITS] || sd->spiritball < req_spiritball) {
+						status->set_sp(src, 0, 0);
+						// Restrict sp regen for 3mins
+						sc_start(src, src, SC_EXTREMITYFIST2, 100, skill_lv, skill->get_time2(skill_id, skill_lv));
+					}
+					// Consume spirit balls
+					pc->delspiritball(sd, sd->spiritball, 0);
+#else
 					status->set_sp(src, 0, 0);
-					status_change_end(src, SC_EXPLOSIONSPIRITS, INVALID_TIMER);
-					status_change_end(src, SC_BLADESTOP, INVALID_TIMER);
 #ifdef RENEWAL
 					sc_start(src, src,SC_EXTREMITYFIST2,100,skill_lv,skill->get_time(skill_id,skill_lv));
 #endif // RENEWAL
+#endif
+					mbl = src;
+					i	= 3; // for Asura(from caster)
+					
+					status_change_end(src, SC_BLADESTOP, INVALID_TIMER);
+					status_change_end(src, SC_EXPLOSIONSPIRITS, INVALID_TIMER);
+					 
 				} else {
 					status_change_end(src, SC_NJ_NEN, INVALID_TIMER);
 					status_change_end(src, SC_HIDING, INVALID_TIMER);
