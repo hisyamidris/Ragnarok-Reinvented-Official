@@ -63,4 +63,14 @@
  **/
 #define CUSTOM_MO_ASURA
 
+/**
+ * When enabled, any damage done on Bleeding target will cause them to take 20% of the next damage received during the duration over 5 seconds
+ **/
+#define CUSTOM_SC_BLEEDING_DMG
+
+/**
+ * When enabled, bleeding damage will end bleeding
+ **/
+#define CUSTOM_SC_BLEEDING_DMG_REMOVE_SC_BLEEDING
+
 #endif // CONFIG_GENERAL_H

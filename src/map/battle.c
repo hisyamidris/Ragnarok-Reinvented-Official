@@ -6275,6 +6275,26 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 				status_change_end(target, SC_POISONREACT, INVALID_TIMER);
 		}
 	}
+	
+#ifdef CUSTOM_SC_BLEEDING_DMG
+	// Custom bleeding damage
+	if (tsc && tsc->data[SC_BLOODING] && wd.damage > 1000) {
+		struct status_change_entry *tsce = tsc->data[SC_BLOODING];
+		// Inflict damage when damage source is bleeding source
+		if (tsce->val2 == src->id) {
+			// Inflict damage only once
+			if (tsce->val3 == 0) {
+				tsce->val3 = 1;
+				// params src, target, type, rate, damage, source id, duration
+				sc_start2(src, target, SC_BLOODING_DMG, 100, (int)wd.damage, tsce->val2, 5000);
+#ifdef CUSTOM_SC_BLEEDING_DMG_REMOVE_SC_BLEEDING
+				status_change_end(target, SC_BLOODING, INVALID_TIMER);
+#endif
+			}
+		}
+	}
+#endif
+	
 	map->freeblock_unlock();
 	return wd.dmg_lv;
 }

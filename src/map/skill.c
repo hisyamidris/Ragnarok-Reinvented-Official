@@ -2830,6 +2830,25 @@ int skill_attack(int attack_type, struct block_list* src, struct block_list *dsr
 		if( sd )
 			skill->onskillusage(sd, bl, skill_id, tick);
 	}
+	
+#ifdef CUSTOM_SC_BLEEDING_DMG
+	// Custom bleeding damage
+	if (sc && sc->data[SC_BLOODING] && damage > 1000) {
+		struct status_change_entry *sce = sc->data[SC_BLOODING];
+		// Inflict damage when damage source is bleeding source
+		if (sce->val2 == src->id) {
+			// Inflict damage only once
+			if (sce->val3 == 0) {
+				sce->val3 = 1;
+				// params src, target, type, rate, damage, source id, duration
+				sc_start2(src, bl, SC_BLOODING_DMG, 100, (int)damage, sce->val2, 5000);
+#ifdef CUSTOM_SC_BLEEDING_DMG_REMOVE_SC_BLEEDING
+				status_change_end(bl, SC_BLOODING, INVALID_TIMER);
+#endif
+			}
+		}
+	}
+#endif
 
 	if (!(flag&2)
 	 && (skill_id == MG_COLDBOLT || skill_id == MG_FIREBOLT || skill_id == MG_LIGHTNINGBOLT)

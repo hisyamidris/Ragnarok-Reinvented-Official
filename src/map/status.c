@@ -9076,6 +9076,15 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 				val4 = tick / tick_time; // heal count
 				break;
 			}
+			case SC_BLOODING_DMG: {
+				// val1: damage total
+				// val2: damage source id
+				tick_time = 1000;
+				val4 = tick / tick_time; // damage count
+				// 20% of total damage
+				val3 = (val1 * 0.20) / val4; // damage per interval
+				break;
+			}
 			default:
 				if (calc_flag == SCB_NONE && status->dbs->SkillChangeTable[type] == 0 && status->dbs->IconChangeTable[type] == 0) {
 					//Status change with no calc, no icon, and no skill associated...?
@@ -11346,6 +11355,21 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data) {
 				status->heal(bl, sce->val3, 0, 2);
 				if( sc->data[type] ) {
 					sc_timer_next(sce->val1+tick, status->change_timer, bl->id, data);
+				}
+				map->freeblock_unlock();
+				return 0;
+			}
+			break;
+		case SC_BLOODING_DMG:
+			if( --(sce->val4) >= 0) {
+				struct block_list *src = map->id2bl(sce->val2);
+				if( src && bl && bl->type == BL_MOB ) {
+					mob->log_damage((TBL_MOB*)bl, src, sce->val3);
+				}
+				map->freeblock_lock();
+				status_zap(bl, sce->val3, 0);
+				if( sc->data[type] ) {	
+					sc_timer_next(1000+tick, status->change_timer, bl->id, data);
 				}
 				map->freeblock_unlock();
 				return 0;
