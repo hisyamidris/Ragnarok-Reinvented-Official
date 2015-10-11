@@ -257,6 +257,8 @@ int skill_get_range2 (struct block_list *bl, uint16 skill_id, uint16 skill_lv) {
 
 	//TODO: Find a way better than hardcoding the list of skills affected by AC_VULTURE
 	switch( skill_id ) {
+		case CR_DEVOTION:
+			range <<= 1; //twice the range
 		case AC_SHOWER:
 		case MA_SHOWER:
 		case AC_DOUBLE:
@@ -2310,6 +2312,14 @@ int skill_attack(int attack_type, struct block_list* src, struct block_list *dsr
 			if(skill_id == WZ_WATERBALL && skill_lv > 1)
 				sp = sp/((skill_lv|1)*(skill_lv|1)); //Estimate SP cost of a single water-ball
 			status->heal(bl, 0, sp, 2);
+			switch (skill->get_casttype(skill_id)) {
+			case CAST_NODAMAGE:
+				skill->castend_nodamage_id(bl, src, skill_id, skill_lv, tick, flag);
+				break;
+			case CAST_DAMAGE:
+				skill->castend_damage_id(bl, src, skill_id, skill_lv, tick, flag);
+				break;
+			}
 		}
 	}
 
@@ -5471,6 +5481,17 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 					if (heal_get_jobexp <= 0)
 						heal_get_jobexp = 1;
 					pc->gainexp (sd, bl, 0, heal_get_jobexp, false);
+				}
+				if ( sd ) {
+					int count, i;
+					ARR_FIND(0, 5, count, sd->devotion[count] == 0);
+					if ( count < 5) {
+						for ( i = 0; i < count; i++ ) {
+							struct block_list* dbl = map->id2bl(sd->devotion[i]);
+							if ( dbl )
+								status->heal(dbl, heal >> 1, 0, 0x2);
+						}
+					}
 				}
 			}
 			break;

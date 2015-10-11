@@ -2568,7 +2568,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt) {
 
 	// Absolute modifiers from passive skills
 	if((skill_lv=pc->checkskill(sd,CR_TRUST))>0)
-		bstatus->max_hp += skill_lv*200;
+		bstatus->max_hp += skill_lv*500;
 
 	// Apply relative modifiers from equipment
 	if(sd->hprate < 0)
