@@ -745,6 +745,7 @@ typedef enum sc_type {
 	
 	// CUSTOM
 	SC_BA_PANGVOICE,
+	SC_BLOODING_DMG,
 
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 } sc_type;
@@ -1571,6 +1572,7 @@ enum si_type {
 
 	// CUSTOM
 	SI_BA_PANGVOICE = 821,
+	SI_BLOODING_DMG = 822,
 	
 	SI_MAX,
 };
