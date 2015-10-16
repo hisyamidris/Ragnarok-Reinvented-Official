@@ -6266,6 +6266,27 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 		}
 			break;
 
+		case MO_FINGEROFFENSIVE:
+			// CUSTOM: Check if target is a friend or enemy
+			if (battle->check_target(src, bl, BCT_ENEMY) <= 0) {
+#ifdef CUSTOM_MO_FINGEROFFENSIVE
+				// CUSTOM: Friend, heal 350% of batk per level
+				int heal = ((350.0f / 100.0f) * sstatus->batk) * skill_lv;
+				clif->skill_nodamage(NULL, src, AL_HEAL, heal, 1);
+				clif->skill_damage(src, bl, tick, status_get_amotion(src), 0, -30000, skill_lv, skill_id, skill_lv, BDT_MULTIHIT);
+				status_change_end(src, SC_BLADESTOP, INVALID_TIMER);
+#else
+				if (sd) {
+					clif->skill_fail(sd, skill_id, USESKILL_FAIL_LEVEL, 0);
+					return 0;
+				}
+#endif
+			} else {
+				// CUSTOM: Enemy
+				return skill->castend_damage_id(src, bl, skill_id, skill_lv, tick, flag);
+			}
+			break;
+			
 		case AC_MAKINGARROW:
 			if(sd) {
 				clif->arrow_create_list(sd);
