@@ -6237,6 +6237,13 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 
 		case MO_ABSORBSPIRITS:
 		{
+#ifdef CUSTOM_MO_ABSORB_SPIRIT
+			// Heal hp 350% of atk
+			int heal = sstatus->batk * (350 / 100);
+			if (heal) {
+				status->heal(src, heal, 0, 3);
+			}
+#else
 			int sp = 0;
 			if ( dstsd && dstsd->spiritball
 				&& (sd == dstsd || map_flag_vs(src->m) || (sd && sd->duel_group && sd->duel_group == dstsd->duel_group))
@@ -6255,6 +6262,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			}
 			if (sp) status->heal(src, 0, sp, 3);
 			clif->skill_nodamage(src,bl,skill_id,skill_lv,sp?1:0);
+#endif
 		}
 			break;
 

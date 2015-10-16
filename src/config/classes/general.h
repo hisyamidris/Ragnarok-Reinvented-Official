@@ -73,4 +73,9 @@
  **/
 #define CUSTOM_SC_BLEEDING_DMG_REMOVE_SC_BLEEDING
 
+/**
+ * When enabled, monk/champion absorb spirit sphere is now a self-card ability. When cast, the monk will consume one spirit sphere and heal based of his ATK.
+ **/
+#define CUSTOM_MO_ABSORB_SPIRIT
+
 #endif // CONFIG_GENERAL_H
