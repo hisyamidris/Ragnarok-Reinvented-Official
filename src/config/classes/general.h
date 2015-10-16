@@ -79,6 +79,11 @@
 #define CUSTOM_MO_ABSORB_SPIRIT
 
 /**
+ * When enabled, monk/champion absorb spirit sphere can be use while on bladestop status.
+ **/
+#define CUSTOM_MO_ABSORB_SPIRIT_BLADESTOP
+
+/**
  * When enabled, Throw Spirit Sphere can also be casted on allied units.
  * This ability will heal allied units based on the skill level and the monk’s ATK. 
  * Just like how the ability used to work, A certain level of Throw Spirit Sphere can use its maximum amount of spirit spheres (equal to the level), 
@@ -86,5 +91,12 @@
  * Throw Spirit Sphere will work normally on enemy targets.
  **/
 #define CUSTOM_MO_FINGEROFFENSIVE
+
+/**
+ * When enabled, Blade stop is now a targeted skill. It can be used on both allied and enemy. 
+ * While in freeze condition, the monk can cast Absorb Spirit Sphere, Throw Sphere Spirit and Asura Strike. 
+ * The duration of the skill depends on the skill level.
+ **/
+#define CUSTOM_MO_BLADESTOP
 
 #endif // CONFIG_GENERAL_H

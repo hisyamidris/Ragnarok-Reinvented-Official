@@ -5900,6 +5900,25 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 				skill->attack(BF_MISC,src,src,bl,skill_id,skill_lv,tick,flag);
 				break;
 			}
+		case MO_BLADESTOP:
+#ifdef CUSTOM_MO_BLADESTOP
+		{
+			if(is_boss(bl)) {
+				if (sd) { clif->skill_fail(sd, skill_id, USESKILL_FAIL_TOTARGET, 0); }
+				break;
+			}
+			int duration = skill->get_time2(MO_BLADESTOP, skill_lv);
+			if (sc_start4(src, bl, SC_BLADESTOP, 100, skill_lv, 0, src->id, src->id, duration)) {
+				if(bl->type == BL_MOB) {
+					mob->unlocktarget((TBL_MOB*)bl,timer->gettick());
+				}
+				unit->stop_attack(bl);
+				clif->bladestop(src, bl->id, 1);
+				sc_start4(src, src, SC_BLADESTOP, 100, skill_lv, 0, src->id, bl->id, duration);
+			}
+		}
+			break;
+#endif
 		case PR_SLOWPOISON:
 		case PR_IMPOSITIO:
 		case PR_LEXAETERNA:
@@ -5918,7 +5937,6 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 		case MG_ENERGYCOAT:
 		case MO_EXPLOSIONSPIRITS:
 		case MO_STEELBODY:
-		case MO_BLADESTOP:
 		case LK_AURABLADE:
 		case LK_PARRYING:
 		case MS_PARRYING:
@@ -6243,6 +6261,9 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			if (heal) {
 				status->heal(src, heal, 0, 3);
 			}
+#ifdef CUSTOM_MO_ABSORB_SPIRIT_BLADESTOP
+			status_change_end(src, SC_BLADESTOP, INVALID_TIMER);
+#endif
 #else
 			int sp = 0;
 			if ( dstsd && dstsd->spiritball
