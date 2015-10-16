@@ -6239,7 +6239,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 		{
 #ifdef CUSTOM_MO_ABSORB_SPIRIT
 			// Heal hp 350% of atk
-			int heal = sstatus->batk * (350 / 100);
+			int heal = sstatus->batk * (350.0f / 100.0f);
 			if (heal) {
 				status->heal(src, heal, 0, 3);
 			}
