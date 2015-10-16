@@ -6293,7 +6293,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 #ifdef CUSTOM_MO_FINGEROFFENSIVE
 				// CUSTOM: Friend, heal 350% of batk per level
 				int heal = ((350.0f / 100.0f) * sstatus->batk) * skill_lv;
-				clif->skill_nodamage(NULL, src, AL_HEAL, heal, 1);
+				clif->skill_nodamage(NULL, bl, AL_HEAL, heal, 1);
 				clif->skill_damage(src, bl, tick, status_get_amotion(src), 0, -30000, skill_lv, skill_id, skill_lv, BDT_MULTIHIT);
 				status_change_end(src, SC_BLADESTOP, INVALID_TIMER);
 #else
