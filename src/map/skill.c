@@ -6299,11 +6299,13 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 #else
 				if (sd) {
 					clif->skill_fail(sd, skill_id, USESKILL_FAIL_LEVEL, 0);
-					return 0;
 				}
+				map->freeblock_unlock();
+				return 0;
 #endif
 			} else {
 				// CUSTOM: Enemy
+				map->freeblock_unlock();
 				return skill->castend_damage_id(src, bl, skill_id, skill_lv, tick, flag);
 			}
 			break;
