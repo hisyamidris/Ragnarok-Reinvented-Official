@@ -274,7 +274,9 @@ void initChangeTables(void) {
 	set_sc( CR_DEFENDER          , SC_DEFENDER        , SI_DEFENDER        , SCB_SPEED|SCB_ASPD );
 	set_sc( CR_SPEARQUICKEN      , SC_SPEARQUICKEN    , SI_SPEARQUICKEN    , SCB_ASPD|SCB_CRI|SCB_FLEE );
 	set_sc( MO_STEELBODY         , SC_STEELBODY       , SI_STEELBODY       , SCB_DEF|SCB_MDEF|SCB_ASPD|SCB_SPEED );
+#ifndef CUSTOM_MO_BLADESTOP
 	add_sc( MO_BLADESTOP         , SC_BLADESTOP_WAIT  );
+#endif
 	add_sc( MO_BLADESTOP         , SC_BLADESTOP       );
 	set_sc( MO_EXPLOSIONSPIRITS  , SC_EXPLOSIONSPIRITS, SI_EXPLOSIONSPIRITS, SCB_CRI|SCB_REGEN );
 	set_sc( MO_EXTREMITYFIST     , SC_EXTREMITYFIST   , SI_BLANK           , SCB_REGEN );
@@ -1673,6 +1675,12 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, uin
 		}
 
 		if (sc->data[SC_BLADESTOP]) {
+#ifdef CUSTOM_MO_ABSORB_SPIRIT_BLADESTOP
+			// Only the blade stop source can use skill
+			if (src && src->id != sc->data[SC_BLADESTOP]->val3) {
+				return 0;
+			}
+#endif
 			switch (sc->data[SC_BLADESTOP]->val1)
 			{
 			case 5: if (skill_id == MO_EXTREMITYFIST) break;
