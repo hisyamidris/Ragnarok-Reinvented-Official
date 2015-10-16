@@ -1679,6 +1679,9 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, uin
 			case 4: if (skill_id == MO_CHAINCOMBO) break;
 			case 3: if (skill_id == MO_INVESTIGATE) break;
 			case 2: if (skill_id == MO_FINGEROFFENSIVE) break;
+#ifdef CUSTOM_MO_ABSORB_SPIRIT_BLADESTOP
+			case 1: if (skill_id == MO_ABSORBSPIRITS) break;
+#endif
 			default: return 0;
 			}
 		}

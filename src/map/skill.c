@@ -6243,6 +6243,9 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			if (heal) {
 				status->heal(src, heal, 0, 3);
 			}
+#ifdef CUSTOM_MO_ABSORB_SPIRIT_BLADESTOP
+			status_change_end(src, SC_BLADESTOP, INVALID_TIMER);
+#endif
 #else
 			int sp = 0;
 			if ( dstsd && dstsd->spiritball
