@@ -99,4 +99,13 @@
  **/
 #define CUSTOM_MO_BLADESTOP
 
+/**
+ * When enabled, 
+ * Poison can be lethal (can cause death).
+ * Poison effect is now stackable (up to 20).
+ * Poisoned target will take 20 hp per seconds every stack until the duration end.
+ * If the effect is removed before the duration end (by skill or items), the player will take 50% of the remaining duration damage.
+ **/
+#define CUSTOM_SC_POISON_STACK
+
 #endif // CONFIG_GENERAL_H
