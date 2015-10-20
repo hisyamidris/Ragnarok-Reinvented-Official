@@ -7440,12 +7440,15 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 				if (sce->val2 > val2)
 					return 0;
 				break;
+			case SC_POISON:
+#ifdef CUSTOM_SC_POISON_STACK
+				break;
+#endif
 			case SC_S_LIFEPOTION:
 			case SC_L_LIFEPOTION:
 			case SC_CASH_BOSS_ALARM:
 			case SC_STUN:
 			case SC_SLEEP:
-			case SC_POISON:
 			case SC_CURSE:
 			case SC_SILENCE:
 			case SC_CONFUSION:
@@ -7792,6 +7795,7 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 				break;
 
 			case SC_DPOISON:
+#ifndef CUSTOM_SC_POISON_STACK
 				//Lose 10/15% of your life as long as it doesn't brings life below 25%
 				if (st->hp > st->max_hp>>2) {
 					int diff = st->max_hp*(bl->type==BL_PC?10:15)/100;
@@ -7805,7 +7809,24 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 					status_zap(bl, diff, 0);
 				}
 				// fall through
+#endif
 			case SC_POISON:
+#ifdef CUSTOM_SC_POISON_STACK
+			{
+				if (!sc->data[SC_POISON_STACK]) {
+					sc_start(NULL, bl, SC_POISON_STACK, 100, 0, -1);
+				}
+				if ((sce = sc->data[SC_POISON_STACK])) {
+					if (sce->val4 < 20) {
+						sce->val4 += 1;
+					}
+				}
+				int stack = (sc->data[SC_POISON_STACK]) ? sc->data[SC_POISON_STACK]->val4 : 1;
+				tick_time = 1000;
+				val3 = tick / tick_time;
+				val4 = 20 * stack;
+			}
+#else
 				val3 = tick/1000; //Damage iterations
 				if(val3 < 1) val3 = 1;
 				tick_time = 1000; // [GodLesZ] tick time
@@ -7814,7 +7835,7 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 					val4 = (type == SC_DPOISON) ? 3 + st->max_hp/50 : 3 + st->max_hp*3/200;
 				else
 					val4 = (type == SC_DPOISON) ? 3 + st->max_hp/100 : 3 + st->max_hp/200;
-
+#endif
 				break;
 			case SC_CONFUSION:
 				clif->emotion(bl,E_WHAT);
@@ -10252,6 +10273,15 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 					break;
 			}
 			break;
+#ifdef CUSTOM_SC_POISON_STACK
+		case SC_POISON:
+			status_change_end(bl, SC_POISON_STACK, INVALID_TIMER);
+			if (sce->val3 > 0) {
+				int damage = (sce->val4 * sce->val3) * 0.50f;
+				status_fix_damage(NULL, bl, damage, 0);
+			}
+			break;
+#endif
 	}
 
 	opt_flag = 1;
@@ -10634,8 +10664,10 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data) {
 			break;
 
 		case SC_POISON:
+#ifndef CUSTOM_SC_POISON_STACK
 			if(st->hp <= max(st->max_hp>>2, sce->val4)) //Stop damaging after 25% HP left.
 				break;
+#endif
 		case SC_DPOISON:
 			if (--(sce->val3) > 0) {
 				if (!sc->data[SC_SLOWPOISON]) {
