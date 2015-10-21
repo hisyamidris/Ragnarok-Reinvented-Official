@@ -7821,6 +7821,9 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 						sce->val4 += 1;
 					}
 				}
+#ifdef CUSTOM_SC_POISON_FIXED_DURATION
+				tick = CUSTOM_SC_POISON_FIXED_DURATION;
+#endif
 				int stack = (sc->data[SC_POISON_STACK]) ? sc->data[SC_POISON_STACK]->val4 : 1;
 				tick_time = 1000;
 				val3 = tick / tick_time;

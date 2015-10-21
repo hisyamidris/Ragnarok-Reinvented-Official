@@ -107,5 +107,6 @@
  * If the effect is removed before the duration end (by skill or items), the player will take 50% of the remaining duration damage.
  **/
 #define CUSTOM_SC_POISON_STACK
+#define CUSTOM_SC_POISON_FIXED_DURATION 15000
 
 #endif // CONFIG_GENERAL_H
